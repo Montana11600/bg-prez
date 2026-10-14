@@ -1,0 +1,544 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>[hidden]{display:none!important}img{max-width:100%}body{margin:0}</style>
+<title>Piway Clarkson</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500&family=Barlow+Condensed:wght@500;700&family=Pirata+One&family=Special+Elite&display=swap">
+<style>
+/* Concept : l'écusson du MC en fond fixe, hero aligné à gauche, grille de cartes face cachée, barre audio fixe.
+   Tout est un seul monde sombre (asphalte, gris cuir, fil d'écusson), l'ambre vient des yeux de la panthère. */
+:root{
+  --ink:#070708;
+  --coal:#101012;
+  --graphite:#1a1b1e;
+  --steel:#303136;
+  --ash:#9a968f;
+  --bone:#d8d0c2;
+  --amber:#c8903a;
+  --blood:#8c1d1d;
+  --rouge:#c0524a;
+  --f-display:'Pirata One','UnifrakturCook',Georgia,serif;
+  --f-label:'Barlow Condensed','Arial Narrow',sans-serif;
+  --f-body:'Barlow',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --f-type:'Special Elite','Courier New',monospace;
+  --aim:url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32' fill='none' stroke='%23d8d0c2' stroke-width='1.6'%3E%3Ccircle cx='16' cy='16' r='8'/%3E%3Cpath d='M16 2v8M16 22v8M2 16h8M22 16h8'/%3E%3Ccircle cx='16' cy='16' r='1' fill='%23c8903a' stroke='none'/%3E%3C/svg%3E") 16 16, crosshair;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--ink);color:var(--bone);font-family:var(--f-body);font-size:16px;line-height:1.5;
+  padding-inline:clamp(16px,4vw,48px);padding-block:0;cursor:var(--aim);
+  overflow-x:hidden;
+}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+
+/* ---------- Fond : le patch du club ---------- */
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:url("logo.jpg") 50% 46%/min(150vw,130vh,1300px) auto no-repeat var(--ink)}
+.bg::after{content:"";position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse at 50% 42%,rgba(7,7,8,.30) 0%,rgba(7,7,8,.78) 70%,rgba(7,7,8,.94) 100%),
+    linear-gradient(to bottom,rgba(7,7,8,.55),rgba(7,7,8,0) 22%,rgba(7,7,8,0) 70%,rgba(7,7,8,.8))}
+#holes{position:fixed;inset:0;z-index:1;pointer-events:none}
+#fx{position:fixed;inset:0;z-index:60;pointer-events:none}
+
+main{position:relative;z-index:2;max-width:1240px;margin-inline:auto;padding-block:clamp(32px,6vw,72px) 170px}
+
+/* ---------- Hero ---------- */
+.hero{display:flex;flex-direction:column;gap:18px;padding-bottom:clamp(36px,6vw,64px)}
+.eyebrow{font-family:var(--f-type);font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--ash)}
+h1{margin:0;display:flex;flex-direction:column;gap:2px}
+h1 .first{font-family:var(--f-label);font-weight:700;text-transform:uppercase;letter-spacing:.34em;font-size:clamp(14px,2vw,19px);color:var(--amber)}
+h1 .nick{font-family:var(--f-display);font-weight:400;font-size:clamp(88px,19vw,230px);line-height:.82;letter-spacing:.01em;color:var(--bone);
+  text-shadow:0 3px 0 #000,0 0 46px rgba(0,0,0,.9)}
+.tag{margin:0;max-width:46ch;font-size:clamp(17px,2.2vw,21px);line-height:1.45;color:var(--bone);text-wrap:pretty;text-shadow:0 1px 14px #000}
+.meta{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:8px 0;font-family:var(--f-type);font-size:13px;color:var(--ash)}
+.meta li{padding-inline:14px;border-left:1px solid var(--steel)}
+.meta li:first-child{padding-left:0;border-left:0}
+.hint{display:flex;align-items:center;gap:10px;margin:8px 0 0;font-family:var(--f-label);font-weight:500;font-size:15px;letter-spacing:.12em;text-transform:uppercase;color:var(--ash)}
+.hint svg{flex:none;width:20px;height:20px;stroke:var(--amber)}
+
+/* ---------- Cartes ---------- */
+.deck{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,270px),1fr));gap:30px 24px}
+.card{position:relative;height:490px;perspective:1400px;outline:none;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+.card.recoil{animation:recoil .42s cubic-bezier(.2,.8,.3,1)}
+@keyframes recoil{
+  0%{transform:none}
+  16%{transform:translate(var(--kx),-7px) rotate(var(--kr))}
+  48%{transform:translate(calc(var(--kx)*-.35),2px) rotate(calc(var(--kr)*-.5))}
+  100%{transform:none}}
+.inner{position:relative;height:100%;transform-style:preserve-3d;transition:transform .85s cubic-bezier(.3,1.3,.5,1)}
+.card.flipped .inner{transform:rotateY(180deg)}
+.card:not(.flipped):hover .inner{transform:translateY(-5px) rotateZ(-.6deg)}
+.face{position:absolute;inset:0;border-radius:14px;overflow:hidden;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  box-shadow:0 18px 40px rgba(0,0,0,.65),0 2px 0 rgba(255,255,255,.04) inset}
+.card:focus-visible .face{outline:2px solid var(--amber);outline-offset:4px}
+
+.back{background:
+    repeating-linear-gradient(45deg,rgba(255,255,255,.018) 0 2px,transparent 2px 6px),
+    linear-gradient(150deg,#1c1c1f,#0b0b0c);
+  border:1px solid var(--steel)}
+.back::before{content:"";position:absolute;inset:9px;border:1.5px dashed rgba(190,180,160,.34);border-radius:9px;pointer-events:none}
+.back .seal{position:absolute;inset:50px 26px 56px;border-radius:6px;border:1px solid var(--steel);
+  background:url("panther.jpg") 50% 50%/cover no-repeat #050505;box-shadow:inset 0 0 44px #000}
+.back .lbl{position:absolute;left:0;right:0;text-align:center;font-family:var(--f-display);font-size:21px;letter-spacing:.1em;color:var(--bone);opacity:.85}
+.back .lbl.t{top:19px}.back .lbl.b{bottom:17px;padding-inline:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--amber);opacity:1}
+
+.front{transform:rotateY(180deg);display:flex;flex-direction:column;gap:12px;padding:18px 20px 58px;
+  background:repeating-linear-gradient(135deg,rgba(255,255,255,.012) 0 1px,transparent 1px 7px),linear-gradient(160deg,#202125,#121315);
+  border:1px solid var(--steel)}
+.front::before{content:"";position:absolute;inset:7px;border:1px solid rgba(216,208,194,.12);border-radius:9px;pointer-events:none}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.idx{font-family:var(--f-display);line-height:.88;text-align:center;font-size:28px;color:var(--bone)}
+.idx i{display:block;font-style:normal;font-size:24px}
+.idx.red{color:var(--rouge)}
+.idx.br{position:absolute;right:20px;bottom:16px;transform:rotate(180deg)}
+.eye{font-family:var(--f-type);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--ash);text-align:right;padding-top:4px}
+.front h2{margin:0;font-family:var(--f-display);font-weight:400;font-size:36px;line-height:1;color:var(--bone);text-wrap:balance}
+.front h2::after{content:"";display:block;width:38px;height:2px;margin-top:10px;background:var(--amber)}
+.txt{display:flex;flex-direction:column;gap:9px;min-height:0;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--steel) transparent;font-size:14.5px;line-height:1.45}
+.txt p{margin:0;color:var(--bone)}
+.txt ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
+.txt li{position:relative;padding-left:16px}
+.txt li::before{content:"";position:absolute;left:0;top:.62em;width:7px;height:2px;background:var(--amber)}
+.txt dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:7px 14px}
+.txt dt{font-family:var(--f-type);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--ash);padding-top:2px}
+.txt dd{margin:0}
+.sub{font-family:var(--f-label);font-weight:700;font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:var(--amber);margin-top:4px}
+.stamp{position:absolute;left:22px;bottom:18px;transform:rotate(-7deg);padding:2px 14px 0;border:3px solid var(--rouge);border-radius:4px;color:var(--rouge);
+  font-family:var(--f-type);font-size:26px;letter-spacing:.08em;text-transform:uppercase;opacity:.9}
+
+.hole{position:absolute;width:78px;height:78px;pointer-events:none;z-index:5;filter:drop-shadow(0 1px 1px rgba(0,0,0,.7))}
+
+.coda{margin-top:56px;padding-top:20px;border-top:1px solid var(--steel);display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px 24px;
+  font-family:var(--f-type);font-size:13px;color:var(--ash)}
+
+/* ---------- Lecteur ---------- */
+.player{position:fixed;left:0;right:0;bottom:0;z-index:50;cursor:default;
+  display:grid;grid-template-columns:auto minmax(120px,210px) minmax(0,1fr) auto;grid-template-areas:"play meta seek ctrls";align-items:center;gap:8px 18px;
+  padding:12px clamp(16px,4vw,48px) calc(12px + env(safe-area-inset-bottom,0px));
+  background:rgba(9,9,10,.93);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid var(--steel)}
+.player button{cursor:pointer}
+.play{grid-area:play;width:48px;height:48px;border-radius:50%;border:0;background:var(--amber);color:var(--ink);display:grid;place-items:center;position:relative}
+.play svg{width:20px;height:20px;fill:currentColor}
+.play:not(.on)::after{content:"";position:absolute;inset:-5px;border-radius:50%;border:2px solid var(--amber);opacity:0;animation:ring 2s ease-out infinite}
+@keyframes ring{0%{transform:scale(.85);opacity:.7}100%{transform:scale(1.35);opacity:0}}
+.meta2{grid-area:meta;min-width:0;display:flex;flex-direction:column;line-height:1.15}
+.meta2 b{font-family:var(--f-display);font-weight:400;font-size:21px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.meta2 span{white-space:nowrap;font-family:var(--f-label);font-weight:500;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--ash)}
+.seek{grid-area:seek;min-width:0;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:12px;font-family:var(--f-type);font-size:12px;color:var(--ash);font-variant-numeric:tabular-nums}
+.ctrls{grid-area:ctrls;display:flex;align-items:center;gap:8px}
+.ib{width:40px;height:40px;border-radius:8px;border:1px solid var(--steel);background:var(--graphite);display:grid;place-items:center;color:var(--bone)}
+.ib:hover{border-color:var(--amber)}
+.ib svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.ib[aria-pressed="false"]{color:var(--ash);opacity:.65}
+.ib[aria-pressed="false"] svg{stroke-dasharray:3 3}
+.player button:focus-visible,.player input:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+#vol{width:90px}
+input[type=range]{-webkit-appearance:none;appearance:none;background:transparent;height:24px;margin:0;width:100%;cursor:pointer}
+input[type=range]::-webkit-slider-runnable-track{height:4px;border-radius:2px;background:linear-gradient(to right,var(--amber) var(--p,0%),var(--steel) var(--p,0%))}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;margin-top:-5px;border-radius:50%;background:var(--bone);border:2px solid var(--ink)}
+input[type=range]::-moz-range-track{height:4px;border-radius:2px;background:var(--steel)}
+input[type=range]::-moz-range-progress{height:4px;border-radius:2px;background:var(--amber)}
+input[type=range]::-moz-range-thumb{width:10px;height:10px;border-radius:50%;background:var(--bone);border:2px solid var(--ink)}
+
+@media (max-width:760px){
+  .player{grid-template-columns:48px minmax(0,1fr) auto;grid-template-areas:"play meta ctrls" "seek seek seek";gap:6px 12px}
+  #vol{width:64px}
+  .ib{width:36px;height:36px}
+  .card{height:500px}
+}
+@media (prefers-reduced-motion:reduce){
+  .card.recoil{animation:none}
+  .inner{transition-duration:.25s;transition-timing-function:ease}
+  .play:not(.on)::after{animation:none}
+  html{scroll-behavior:auto}
+}
+</style>
+</head>
+<body>
+
+<div class="bg" aria-hidden="true"></div>
+<canvas id="holes" aria-hidden="true"></canvas>
+<canvas id="fx" aria-hidden="true"></canvas>
+
+<main>
+  <header class="hero">
+    <p class="eyebrow">Backlife · Southerners MC · Los Santos</p>
+    <h1><span class="first">Peyton Clarkson</span><span class="nick">Piway</span></h1>
+    <p class="tag">Né à Chicago, élevé dans le confort et forgé par le manque. Treize ans de prison, puis un club comme famille.</p>
+    <ul class="meta">
+      <li>14.09.1996</li>
+      <li>Chicago, Illinois</li>
+      <li>Chicago Bulls</li>
+      <li>Bourbon du Kentucky</li>
+    </ul>
+    <p class="hint">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="7"/><path d="M12 2v6M12 16v6M2 12h6M16 12h6"/></svg>
+      Tire sur une carte pour la retourner. Tire sur le mur pour laisser ta marque.
+    </p>
+  </header>
+
+  <section class="deck" id="deck" aria-label="Cartes du background"></section>
+
+  <footer class="coda">
+    <span>Southerners MC · 1% · Los Santos</span>
+    <span>Fiche de personnage GTA Roleplay</span>
+  </footer>
+</main>
+
+<div class="player" role="region" aria-label="Lecteur de musique">
+  <button class="play" id="play" type="button" aria-label="Lancer la musique">
+    <svg id="ico-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>
+    <svg id="ico-pause" viewBox="0 0 24 24" aria-hidden="true" hidden><path d="M6 4h4.5v16H6zM13.5 4H18v16h-4.5z"/></svg>
+  </button>
+  <div class="meta2"><b>Terrible Tommy</b><span>Ryan Horne</span></div>
+  <div class="seek">
+    <span id="cur">0:00</span>
+    <input type="range" id="seek" min="0" max="1000" value="0" step="1" aria-label="Position dans le morceau">
+    <span id="dur">0:00</span>
+  </div>
+  <div class="ctrls">
+    <button class="ib" id="mute" type="button" aria-label="Couper le son" title="Couper le son">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5z"/><path id="wave1" d="M15.5 9a4 4 0 0 1 0 6"/><path id="wave2" d="M18 6.5a8 8 0 0 1 0 11"/></svg>
+    </button>
+    <input type="range" id="vol" min="0" max="1" step="0.01" value="0.35" aria-label="Volume">
+    <button class="ib" id="sfx" type="button" aria-pressed="true" aria-label="Bruitage des tirs" title="Bruitage des tirs">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7"/><path d="M12 2v6M12 16v6M2 12h6M16 12h6"/></svg>
+    </button>
+    <button class="ib" id="clear" type="button" aria-label="Effacer les impacts" title="Effacer les impacts">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6.5 7l1 13h9l1-13M10 11v6M14 11v6"/></svg>
+    </button>
+  </div>
+</div>
+<audio id="aud" src="music.mp3" loop preload="metadata"></audio>
+
+<script>
+(() => {
+  const $ = s => document.querySelector(s);
+  const store = {
+    get(k, d){ try { const v = localStorage.getItem(k); return v === null ? d : v; } catch (e) { return d; } },
+    set(k, v){ try { localStorage.setItem(k, v); } catch (e) {} }
+  };
+  const REDUCED = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- Contenu des cartes ---------- */
+  const CARDS = [
+    { r:'A', s:'♠', eye:'État civil', t:'Identité', dl:[
+      ['Nom','Clarkson'],['Prénom','Peyton'],['Surnom','Piway'],['Né le','14 septembre 1996'],
+      ['Lieu','Chicago, Illinois, USA'],['Origine','Afro-américain'],
+      ['Passions','Moto, musculation, NBA, pêche, chasse, randonnée'],['Équipe','Chicago Bulls'],['Alcool','Bourbon du Kentucky']] },
+    { r:'K', s:'♣', eye:'Chicago, Illinois', t:"L'enfance", p:[
+      "Peyton naît dans une famille afro-américaine aisée. Son père est agent immobilier, sa mère travaille dans la banque.",
+      "Il ne manque de rien, sauf de l'essentiel : l'amour et l'attention de parents absorbés par leurs carrières.",
+      "Il grandit seul, indépendant, impulsif et difficile à maîtriser."] },
+    { r:'Q', s:'♥', eye:'À 11 ans', t:'Le déclic', p:[
+      "Lors d'une fête de quartier, un Motorcycle Club traverse la rue. Peyton est fasciné par le bruit des moteurs et par ces hommes qui portent fièrement leurs couleurs.",
+      "Des membres lui parlent et lui font essayer leurs cuirs. Il découvre une fraternité : l'entraide, le soutien, personne laissé derrière.",
+      "Pour un gamin en manque d'affection, c'est tout ce qu'il cherche. Il veut appartenir à cet univers."] },
+    { r:'J', s:'♠', eye:'Condamnation', t:'La chute', p:[
+      "Les motos et la musculation deviennent son exutoire, mais son tempérament reste instable.",
+      "Lors d'une altercation, il perd le contrôle et passe à tabac un homme : mâchoire, pommette et nez fracturés, cloison nasale déplacée.",
+      "En prison, il comprend qu'il ne veut pas de la vie de bureau que son père lui destinait. La colère, elle, reste."],
+      stamp:'13 ans' },
+    { r:'10', s:'♦', eye:'Personnalité', t:'Le caractère', p:[
+      "Extrêmement impulsif, avec très peu de patience. Mais aussi gentil, loyal et généreux envers ceux qu'il apprécie.",
+      "Provoqué, humilié ou menacé, il peut devenir violent sans penser aux conséquences. La prison l'a poussé à travailler sur lui-même.",
+      "Respect, fraternité, parole donnée : la loyauté ne se négocie pas, et une vraie famille ne s'arrête pas au sang."] },
+    { r:'9', s:'♣', eye:'Objectifs', t:'Court terme', ul:[
+      "Se faire connaître en ville et bâtir un réseau de contacts",
+      "Faire grandir le CH (Club House) et lancer les premiers travaux",
+      "Trouver un emploi stable pour des revenus réguliers",
+      "Mettre de l'argent de côté pour son projet",
+      "Préparer l'ouverture de Wild Pro Shops"] },
+    { r:'8', s:'♠', eye:'Objectifs', t:'Moyen terme', ul:[
+      "Canaliser sa colère et devenir plus calme, plus réfléchi",
+      "Chercher l'emplacement de Wild Pro Shops",
+      "Contacter le gouvernement et les autorités pour les démarches administratives et commerciales",
+      "Gravir les échelons du MC et participer à son développement",
+      "Étendre la réputation et l'influence du club, côté légal comme illégal"] },
+    { r:'7', s:'♥', eye:'Objectifs', t:'Long terme', ul:[
+      "Faire de son MC le club le plus connu, influent et respecté de la ville",
+      "Ouvrir Wild Pro Shops et en faire un commerce réputé",
+      "Maîtriser ses émotions sans recourir systématiquement à la violence",
+      "Fonder une famille, trouver la stabilité et offrir à ses proches l'amour qui lui a manqué"] },
+    { r:'6', s:'♦', eye:'Le projet légal', t:'Wild Pro Shops', p:[
+      "Un magasin de pêche, de chasse et de randonnée, inspiré des grandes enseignes américaines. Pour Piway, quelque chose de légal, de stable et de durable, sans renier ses passions ni son identité."],
+      sub:'Plan de secours', p2:[
+      "Un petit garage auto et moto : réparations légères, entretien courant, nettoyage et interventions rapides pour les clients de passage. Pas de préparation, de performance ni de custom."] },
+    { r:'JK', s:'★', eye:'Conclusion', t:"L'ennemi intérieur", p:[
+      "Marqué par son passé, ses erreurs et ses 13 années derrière les barreaux, Piway n'a pas de pire ennemi que son propre tempérament.",
+      "Il bâtit son avenir sur trois piliers :"],
+      ul:["Son Motorcycle Club","Son indépendance professionnelle","Sa maîtrise personnelle"] }
+  ];
+
+  const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  const deck = $('#deck');
+  deck.innerHTML = CARDS.map((c, i) => {
+    const red = (c.s === '♥' || c.s === '♦') ? ' red' : '';
+    const suit = c.s + '︎';
+    let body = '';
+    if (c.dl) body += '<dl>' + c.dl.map(([k,v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('') + '</dl>';
+    if (c.p) body += c.p.map(x => `<p>${esc(x)}</p>`).join('');
+    if (c.sub) body += `<div class="sub">${esc(c.sub)}</div>` + c.p2.map(x => `<p>${esc(x)}</p>`).join('');
+    if (c.ul) body += '<ul>' + c.ul.map(x => `<li>${esc(x)}</li>`).join('') + '</ul>';
+    const stamp = c.stamp ? `<div class="stamp">${esc(c.stamp)}</div>` : '';
+    return `<div class="card" role="button" tabindex="0" aria-pressed="false" aria-label="Carte ${i+1} sur ${CARDS.length}, retourner">
+      <div class="inner">
+        <div class="face back"><span class="lbl t">Southerners</span><div class="seal"></div><span class="lbl b">${esc(c.t)}</span></div>
+        <div class="face front" aria-hidden="true">
+          <div class="top"><div class="idx${red}">${c.r}<i>${suit}</i></div><div class="eye">${esc(c.eye)}</div></div>
+          <h2>${esc(c.t)}</h2>
+          <div class="txt">${body}</div>
+          ${stamp}
+          <div class="idx br${red}">${c.r}<i>${suit}</i></div>
+        </div>
+      </div></div>`;
+  }).join('');
+
+  /* ---------- Impacts : sprites ---------- */
+  function mulberry(a){ return function(){ a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  function makeSprite(seed){
+    const rnd = mulberry(seed), S = 160, c = S / 2;
+    const cv = document.createElement('canvas'); cv.width = cv.height = S;
+    const g = cv.getContext('2d'); g.translate(c, c); g.lineCap = 'round';
+    // halo écaillé
+    let gr = g.createRadialGradient(0,0,3,0,0,26);
+    gr.addColorStop(0,'rgba(20,20,20,.95)'); gr.addColorStop(.35,'rgba(150,144,132,.5)'); gr.addColorStop(1,'rgba(150,144,132,0)');
+    g.fillStyle = gr; g.beginPath(); g.arc(0,0,26,0,Math.PI*2); g.fill();
+    // fissures
+    const n = 7 + Math.floor(rnd()*5);
+    const crack = (pts) => {
+      g.beginPath(); pts.forEach((p,i) => i ? g.lineTo(p[0],p[1]) : g.moveTo(p[0],p[1]));
+      g.strokeStyle = 'rgba(0,0,0,.7)'; g.lineWidth = 2.4; g.stroke();
+      g.save(); g.translate(-.6,-.6); g.strokeStyle = 'rgba(205,198,185,.34)'; g.lineWidth = 1; g.stroke(); g.restore();
+    };
+    for (let i = 0; i < n; i++){
+      let ang = rnd()*Math.PI*2, x = 0, y = 0;
+      const len = 24 + rnd()*52, segs = 3 + Math.floor(rnd()*3), pts = [[0,0]];
+      for (let k = 0; k < segs; k++){
+        ang += (rnd()-.5)*.7; const l = len/segs; x += Math.cos(ang)*l; y += Math.sin(ang)*l; pts.push([x,y]);
+        if (rnd() < .35){ const b = ang + (rnd()<.5?-1:1)*.8; crack([[x,y],[x+Math.cos(b)*l*.9, y+Math.sin(b)*l*.9]]); }
+      }
+      crack(pts);
+    }
+    // éclats
+    for (let i = 0; i < 9; i++){
+      const a = rnd()*Math.PI*2, d = 9 + rnd()*22, s = 1 + rnd()*2.6;
+      g.fillStyle = 'rgba(175,170,158,.5)'; g.beginPath();
+      g.moveTo(Math.cos(a)*d, Math.sin(a)*d); g.lineTo(Math.cos(a+2)*d + s, Math.sin(a+2)*d); g.lineTo(Math.cos(a)*d, Math.sin(a)*d + s*1.4); g.fill();
+    }
+    // cratère
+    g.save(); g.rotate(rnd()*3); g.scale(1, .8 + rnd()*.3);
+    gr = g.createRadialGradient(0,0,0,0,0,7); gr.addColorStop(0,'#000'); gr.addColorStop(.7,'#050505'); gr.addColorStop(1,'rgba(30,30,30,.9)');
+    g.fillStyle = gr; g.beginPath(); g.arc(0,0,6.5,0,Math.PI*2); g.fill(); g.restore();
+    return cv;
+  }
+  const sprites = [11, 23, 37, 41, 59, 73].map(makeSprite);
+  const spriteURLs = sprites.map(s => s.toDataURL('image/png'));
+  const pick = a => a[Math.floor(Math.random()*a.length)];
+
+  /* ---------- Canvas : trous du mur ---------- */
+  const hc = $('#holes'), hx = hc.getContext('2d');
+  const fc = $('#fx'), fxc = fc.getContext('2d');
+  let holes = [], dpr = 1;
+  function size(){
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    [hc, fc].forEach(c => { c.width = innerWidth*dpr; c.height = innerHeight*dpr; });
+    drawHoles();
+  }
+  let pend = false;
+  function drawHoles(){
+    pend = false;
+    hx.setTransform(dpr,0,0,dpr,0,0); hx.clearRect(0,0,innerWidth,innerHeight);
+    for (const h of holes){
+      const y = h.y - scrollY; if (y < -80 || y > innerHeight + 80) continue;
+      hx.save(); hx.translate(h.x, y); hx.rotate(h.r); hx.drawImage(sprites[h.v], -h.s/2, -h.s/2, h.s, h.s); hx.restore();
+    }
+  }
+  const queueDraw = () => { if (!pend){ pend = true; requestAnimationFrame(drawHoles); } };
+  addEventListener('resize', size);
+  addEventListener('scroll', queueDraw, { passive:true });
+
+  /* ---------- Flash et étincelles ---------- */
+  let flashes = [], sparks = [], running = false;
+  function burst(x, y){
+    flashes.push({ x, y, t:performance.now() });
+    if (!REDUCED) for (let i = 0; i < 11; i++) sparks.push({ x, y, vx:(Math.random()-.5)*8, vy:-Math.random()*5-1, l:0 });
+    if (!running){ running = true; requestAnimationFrame(loop); }
+  }
+  function loop(now){
+    fxc.setTransform(dpr,0,0,dpr,0,0); fxc.clearRect(0,0,innerWidth,innerHeight);
+    flashes = flashes.filter(f => now - f.t < 150);
+    for (const f of flashes){
+      const p = (now - f.t)/150, r = 100*(1-p) + 26;
+      const g = fxc.createRadialGradient(f.x,f.y,0,f.x,f.y,r);
+      g.addColorStop(0,`rgba(255,244,220,${.95*(1-p)})`); g.addColorStop(.3,`rgba(240,170,80,${.6*(1-p)})`); g.addColorStop(1,'rgba(240,170,80,0)');
+      fxc.fillStyle = g; fxc.beginPath(); fxc.arc(f.x,f.y,r,0,Math.PI*2); fxc.fill();
+    }
+    sparks = sparks.filter(s => s.l < 32);
+    for (const s of sparks){
+      s.l++; s.x += s.vx; s.y += s.vy; s.vy += .35; s.vx *= .97;
+      fxc.fillStyle = `rgba(255,${190 - s.l*2},90,${1 - s.l/32})`; fxc.fillRect(s.x, s.y, 2, 2);
+    }
+    if (flashes.length || sparks.length) requestAnimationFrame(loop);
+    else { running = false; fxc.clearRect(0,0,innerWidth,innerHeight); }
+  }
+
+  /* ---------- Son du tir ---------- */
+  let actx = null, master = null, verb = null, sfxOn = store.get('sfx','1') === '1';
+  function audioCtx(){
+    if (!actx){
+      try {
+        actx = new (window.AudioContext || window.webkitAudioContext)();
+        const comp = actx.createDynamicsCompressor(); master = actx.createGain(); master.gain.value = 1;
+        master.connect(comp); comp.connect(actx.destination);
+        // écho de pièce : réponse impulsionnelle bruitée qui s'éteint
+        const len = Math.floor(actx.sampleRate*1.5), ir = actx.createBuffer(2, len, actx.sampleRate);
+        for (let ch = 0; ch < 2; ch++){ const d = ir.getChannelData(ch); for (let i = 0; i < len; i++) d[i] = (Math.random()*2-1) * Math.pow(1 - i/len, 2.6); }
+        verb = actx.createConvolver(); verb.buffer = ir;
+        const wet = actx.createGain(); wet.gain.value = .5; verb.connect(wet); wet.connect(comp);
+      } catch (e) { actx = null; }
+    }
+    if (actx && actx.state === 'suspended') actx.resume();
+    return actx;
+  }
+  function gunshot(){
+    if (!sfxOn) return; const a = audioCtx(); if (!a) return;
+    const t = a.currentTime, k = .92 + Math.random()*.2;
+    const noise = (dur, pow) => {
+      const buf = a.createBuffer(1, Math.floor(a.sampleRate*dur), a.sampleRate), d = buf.getChannelData(0);
+      for (let i = 0; i < d.length; i++) d[i] = (Math.random()*2-1) * Math.pow(1 - i/d.length, pow);
+      const s = a.createBufferSource(); s.buffer = buf; return s;
+    };
+    const out = a.createGain(); out.gain.value = 1; out.connect(master); out.connect(verb);
+    // 1. claquement sec (amorce)
+    const crack = noise(.07, 2), hp = a.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 1800;
+    const cg = a.createGain(); cg.gain.setValueAtTime(1.6, t); cg.gain.exponentialRampToValueAtTime(.001, t + .07);
+    crack.connect(hp); hp.connect(cg); cg.connect(out); crack.start(t);
+    // 2. détonation (corps du coup)
+    const boom = noise(.45, 3), lp = a.createBiquadFilter(); lp.type = 'lowpass';
+    lp.frequency.setValueAtTime(5200*k, t); lp.frequency.exponentialRampToValueAtTime(260, t + .38);
+    const bg = a.createGain(); bg.gain.setValueAtTime(1.5, t); bg.gain.exponentialRampToValueAtTime(.001, t + .45);
+    boom.connect(lp); lp.connect(bg); bg.connect(out); boom.start(t);
+    // 3. coup de poing grave
+    const o = a.createOscillator(); o.type = 'sine';
+    o.frequency.setValueAtTime(170*k, t); o.frequency.exponentialRampToValueAtTime(34, t + .22);
+    const og = a.createGain(); og.gain.setValueAtTime(1.7, t); og.gain.exponentialRampToValueAtTime(.001, t + .32);
+    o.connect(og); og.connect(out); o.start(t); o.stop(t + .35);
+    // 4. cliquetis métallique du chien, juste après
+    const clk = noise(.04, 1), bp = a.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 3400; bp.Q.value = 3;
+    const kg = a.createGain(); kg.gain.setValueAtTime(.35, t + .09); kg.gain.exponentialRampToValueAtTime(.001, t + .15);
+    clk.connect(bp); bp.connect(kg); kg.connect(out); clk.start(t + .09);
+  }
+
+  /* ---------- Tir sur le mur ---------- */
+  function shootWall(x, y){
+    holes.push({ x, y:y + scrollY, s:62 + Math.random()*46, v:Math.floor(Math.random()*sprites.length), r:Math.random()*Math.PI*2 });
+    if (holes.length > 90) holes.shift();
+    drawHoles(); gunshot(); burst(x, y);
+  }
+
+  /* ---------- Tir sur une carte ---------- */
+  function hitCard(card, e){
+    const r = card.getBoundingClientRect();
+    const cx = e ? e.clientX : r.left + r.width*(.25 + Math.random()*.5);
+    const cy = e ? e.clientY : r.top + r.height*(.25 + Math.random()*.5);
+    const px = (cx - r.left)/r.width*100, py = (cy - r.top)/r.height*100;
+    const flipped = card.classList.contains('flipped');
+    const face = card.querySelector(flipped ? '.front' : '.back');
+    // la balle traverse la carte : un trou sur la face visible, son pendant (en miroir) sur l'autre face
+    const addHole = (f, x) => {
+      const img = new Image(); img.className = 'hole'; img.alt = ''; img.src = pick(spriteURLs);
+      img.style.left = x + '%'; img.style.top = py + '%';
+      img.style.transform = `translate(-50%,-50%) rotate(${Math.floor(Math.random()*360)}deg) scale(${.8 + Math.random()*.5})`;
+      f.appendChild(img);
+      const hs = f.querySelectorAll('.hole'); if (hs.length > 4) hs[0].remove();
+    };
+    addHole(face, px);
+    addHole(card.querySelector(flipped ? '.back' : '.front'), 100 - px);
+    gunshot(); burst(cx, cy);
+    const dir = px < 50 ? 1 : -1;
+    card.style.setProperty('--kx', (dir*9) + 'px'); card.style.setProperty('--kr', (dir*2.4) + 'deg');
+    card.classList.remove('recoil'); void card.offsetWidth; card.classList.add('recoil');
+    if (card._busy) return;
+    card._busy = true; setTimeout(() => card._busy = false, 520);
+    setTimeout(() => {
+      const on = card.classList.toggle('flipped');
+      card.setAttribute('aria-pressed', on);
+      card.querySelector('.front').setAttribute('aria-hidden', !on);
+      card.querySelector('.back').setAttribute('aria-hidden', on);
+    }, 70);
+  }
+  deck.addEventListener('click', e => { const c = e.target.closest('.card'); if (c) hitCard(c, e); });
+  deck.addEventListener('keydown', e => {
+    const c = e.target.closest('.card');
+    if (c && (e.key === 'Enter' || e.key === ' ')){ e.preventDefault(); hitCard(c, null); }
+  });
+
+  /* ---------- Lecteur ---------- */
+  const aud = $('#aud'), playB = $('#play'), seek = $('#seek'), vol = $('#vol'), muteB = $('#mute'), sfxB = $('#sfx');
+  let userPaused = false, dragging = false;
+  const fmt = s => { s = Math.max(0, Math.floor(s || 0)); return Math.floor(s/60) + ':' + String(s%60).padStart(2,'0'); };
+  const fill = (el, v) => el.style.setProperty('--p', (v*100) + '%');
+  function syncPlay(){
+    const on = !aud.paused;
+    $('#ico-play').hidden = on; $('#ico-pause').hidden = !on;
+    playB.classList.toggle('on', on);
+    playB.setAttribute('aria-label', on ? 'Mettre en pause' : 'Lancer la musique');
+  }
+  function syncVol(){
+    const v = aud.muted ? 0 : aud.volume;
+    $('#wave1').style.display = v > 0 ? '' : 'none'; $('#wave2').style.display = v > .5 ? '' : 'none';
+    muteB.setAttribute('aria-label', aud.muted ? 'Rétablir le son' : 'Couper le son');
+    fill(vol, v);
+  }
+  aud.volume = Math.min(1, Math.max(0, parseFloat(store.get('vol','0.35')) || 0.35));
+  vol.value = aud.volume; syncVol(); syncPlay();
+  playB.addEventListener('click', () => {
+    if (aud.paused){ userPaused = false; aud.play().catch(() => {}); } else { userPaused = true; aud.pause(); }
+  });
+  aud.addEventListener('play', syncPlay); aud.addEventListener('pause', syncPlay);
+  aud.addEventListener('loadedmetadata', () => { $('#dur').textContent = fmt(aud.duration); });
+  aud.addEventListener('timeupdate', () => {
+    $('#cur').textContent = fmt(aud.currentTime);
+    if (!dragging && aud.duration){ const p = aud.currentTime/aud.duration; seek.value = p*1000; fill(seek, p); }
+  });
+  seek.addEventListener('input', () => { dragging = true; fill(seek, seek.value/1000); $('#cur').textContent = fmt(seek.value/1000*(aud.duration||0)); });
+  seek.addEventListener('change', () => { if (aud.duration) aud.currentTime = seek.value/1000*aud.duration; dragging = false; });
+  vol.addEventListener('input', () => { aud.muted = false; aud.volume = +vol.value; store.set('vol', vol.value); syncVol(); });
+  muteB.addEventListener('click', () => { aud.muted = !aud.muted; syncVol(); });
+  function syncSfx(){ sfxB.setAttribute('aria-pressed', sfxOn); }
+  syncSfx();
+  sfxB.addEventListener('click', () => { sfxOn = !sfxOn; store.set('sfx', sfxOn ? '1' : '0'); syncSfx(); });
+  $('#clear').addEventListener('click', () => {
+    holes = []; drawHoles();
+    document.querySelectorAll('.hole').forEach(h => h.remove());
+  });
+
+  /* ---------- Clic sur le mur + démarrage de la musique au premier geste ---------- */
+  const SKIP = '.card, .player, a, button, input';
+  // débloque le son dès le premier appui, pour que le premier tir soit déjà audible
+  document.addEventListener('pointerdown', () => { audioCtx(); }, { once:true, capture:true });
+  document.addEventListener('click', e => {
+    if (e.target.closest('.player')) return;
+    if (aud.paused && !userPaused && !aud._tried){ aud._tried = true; aud.play().catch(() => { aud._tried = false; }); }
+    if (e.target.closest(SKIP)) return;
+    shootWall(e.clientX, e.clientY);
+  });
+  document.addEventListener('keydown', e => {
+    if (e.target.closest && e.target.closest('.player')) return;
+    if (aud.paused && !userPaused && !aud._tried && (e.key === 'Enter' || e.key === ' ')){ aud._tried = true; aud.play().catch(() => { aud._tried = false; }); }
+  });
+
+  size();
+})();
+</script>
+</body>
+</html>
